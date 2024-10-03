@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 from scipy.signal import spectrogram
 import librosa 
 import matplotlib.pyplot as plt
+from scipy.interpolate import CubicSpline
 # Check if 'plim' exists and is not None or empty, else set default value
 def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
   #  plim = [30, 5000] if 'plim' not in locals() or not plim else plim
@@ -40,30 +41,37 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
     #ws_arg =  np.arange(logWs[0], logWs[1], -1)
     #print(f"ws_arg{ws_arg}")   
     ws = 2**  np.arange(logWs[0], logWs[1], -1)
-    print(f"Ws{ws}")
+    #print(f"Ws{ws}")
     pO = 4 * K * fs / ws
 
     # Determine window sizes used by each pitch candidate
     d =  1 + log2pc - m.log2(4*K*fs/ws[0])
 ## Opisane z Gpt a skontrolovane trochuS
     # Create ERBs spaced frequencies (in Hertz)
-    fERBs = erbs2hz(np.arange(hz2erbs(pc[0]/4),dERBs, hz2erbs(fs/2)))[:,np.newaxis]
-
+    
+    fERBs = erbs2hz(np.arange(hz2erbs(pc[0]/4), hz2erbs(fs/2),dERBs))[:,np.newaxis]
+    #print(f"fermentolento: {np.arange(hz2erbs(pc[0]/4), hz2erbs(fs/2),dERBs)}")
     for i in range(len(ws)):
         dn = round(dc * fs / pO[0]) #Hop size in samples
         # Zero pad signal
-        xzp = np.arange(np.zeros((int(ws[1]/2),1))), np.zeros((dn + ws[1]/2,1), x[:]) 
-        f, ti, X = spectrogram(xzp, fs=fs, window=w, nperseg=ws[i], noverlap=o, mode='complex') 
+        xzp = np.concatenate([np.zeros((ws[i]//2,)), x.flatten(), np.zeros((dn + ws[i]//2,))])
+        #print(f"xzp:{xzp}")
         # Compute spectrum
         w = np.hanning(ws[i]) # Hanning window
         o = max(0, round(ws[i] - dn))
+        f, ti, X = spectrogram(xzp, fs=fs, window=w, nperseg=ws[i], noverlap=o, mode='complex') 
         # Interpolate at eqidistant ERBs steps
-    
+        #print(f"f:{f.shape}") 
+        #print(f"X:{np.abs(X).shape}")
         # Perform interpolation
-        interp_func = interp1d(f, np.abs(X), kind='spline', fill_value=0, bounds_error=False)
+        # TO DO: ferb je hodnota musim posilat poradi prvku v liste 
+        interp_func = CubicSpline(f, np.abs(X), extrapolate=False)
+        print(f"interp: {interp_func(fERBs)}")
         # Calculate the interpolated magnitudes
+        
         M = np.maximum(0, interp_func(fERBs))  # Ensure non-negative values
-        L = m.sqrt(M) # Loudness
+        print(f"M: {M}")
+        L = [m.sqrt(ms) for ms in M]# Loudness
         # Select candidates that use this window size 
         # Loop over window 
         # Select candidates that use this window size
@@ -143,9 +151,14 @@ def pitchStrengthAllCandidates(f,L,pc):
     Returns:
     S  -- Pitch salience matrix
     """
+    #print(f"f: {f}") 
+    #print(f"pc: {pc}")
+    #print(f"L: {L}")
+    
     with np.errstate(divide= 'ignore', invalid = 'ignore'):
-        L = L / np.sqrt(np.sum(L ** 2), axis = 0, keepdims = True)
-
+     
+        L =  np.array(L)
+        L = L / np.sqrt(np.sum(L ** 2, axis = 0, keepdims = True))
     #Create pitch salience matrix
     S = np.zeros((len(pc), L.shape[1]))
 

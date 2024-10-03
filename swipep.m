@@ -47,7 +47,11 @@ pO = 4*K * fs ./ ws; % Optimal pitches for P2-WSs
 % Determine window sizes used by each pitch candidate 
 d = 1 + log2pc - log2( 4*K*fs./ws(1) ); 
 %% potato je to jakz takz prepisane 
-% Create ERBs spaced frequencies (in Hertz) 
+% Create ERBs spaced frequencies (in Hertz)
+ferbs_help = [ hz2erbs(pc(1)/4): dERBs: hz2erbs(fs/2) ]';
+erbs1 = hz2erbs(pc(1)/4)
+erbs2 = hz2erbs(fs/2)
+dERBs
 fERBs = erbs2hz([ hz2erbs(pc(1)/4): dERBs: hz2erbs(fs/2) ]'); 
 for i = 1 : length(ws) 
     dn = round( dc * fs / pO(i) ); % Hop size (in samples) 
@@ -58,6 +62,7 @@ for i = 1 : length(ws)
     o = max( 0, round( ws(i) - dn ) ); % Window overlap 
     [ X, f, ti ] = specgram( xzp, ws(i), fs, w, o ); 
     % Interpolate at equidistant ERBs steps 
+
     M = max( 0, interp1( f, abs(X), fERBs, 'spline', 0) ); % Magnitude 
     L = sqrt( M ); % Loudness 
     % Select candidates that use this window size 
