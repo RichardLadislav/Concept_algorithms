@@ -60,18 +60,22 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
         w = np.hanning(ws[i]) # Hanning window
         o = max(0, round(ws[i] - dn))
         f, ti, X = spectrogram(xzp, fs=fs, window=w, nperseg=ws[i], noverlap=o, mode='complex') 
+        X = X *np.sum(w)
         # Interpolate at eqidistant ERBs steps
-        #print(f"f:{f.shape}") 
-        #print(f"X:{np.abs(X).shape}")
+#        print(f"f:{f.shape}") 
+        #print(f"X:{X}")
         # Perform interpolation
         # TO DO: ferb je hodnota musim posilat poradi prvku v liste 
         interp_func = CubicSpline(f, np.abs(X), extrapolate=False)
-        print(f"interp: {interp_func(fERBs)}")
+        #for ferbs in range(len(interp_func)): 
+        #print(f"interp: {fERBs.shape[0]}")
         # Calculate the interpolated magnitudes
         
-        M = np.maximum(0, interp_func(fERBs))  # Ensure non-negative values
-        print(f"M: {M}")
-        L = [m.sqrt(ms) for ms in M]# Loudness
+        M = np.maximum(0, [interp_func(ferbs) for ferbs in range(fERBs.shape[0])] )  # Ensure non-negative values
+        #print(f"M: {[interp_func(ferbs) for ferbs in range(fERBs.shape[0])]}")
+        #print(f"list of magnitudes{[ ms for ms in M]}")
+        L = [np.sqrt(ms) for ms in M]# Loudness
+        print(f"L{L}")
         # Select candidates that use this window size 
         # Loop over window 
         # Select candidates that use this window size
@@ -89,13 +93,17 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
          # Pitch strength for selected candidates
         Si = pitchStrengthAllCandidates(fERBs, L, pc[j])
 
-
+#FIXME: use uuuuuuuuuu function for iterpolation
         # Interpolate at desired times
         if Si.shape[1] > 1:
-           interp_func = interp1d(ti, Si.T, kind='linear', bounds_error=False, fill_value=np.nan)
+           interp_func = CubicSpline(ti, Si.T, extrapolate = False)
+
+
            Si = interp_func(t).T
+
         else:
            Si = np.full((len(Si), len(t)), np.nan)
+
         # Calculate lambda and mu for weighting
         lambda_ = d[j[k]] - i
         mu = np.ones(j.shape)
@@ -178,11 +186,11 @@ def  pitchStrengthOneCandidate(f,L,pc):
     Returns:
     S  -- Pitch strength for this candidate
     """
-    n = np.fix(f[-1]/pc - 0.75) # Number of harmonics
+    n = int(np.fix(f[-1]/pc - 0.75)) # Number of harmonics
     k = np.zeros(f.shape) # Kernel
     q = f / pc #Normalize frequency  w.r.t candidate
 
-    for i in [1] + list(sym.prime(n)):
+    for i in [1] + list(sym.primerange(n)):
         a = np.abs(q-i)
         p = a < 0.25 #Peaks weights
         k[p] = np.cos(2*np.pi * q[p]) /2
@@ -200,7 +208,7 @@ def hz2erbs(hz):
 
 def erbs2hz(erbs):
     """Convert ERBs to frequency in Hz."""
-    return (10** (erbs / 21.3)-1 * 229)
+    return (10** (erbs / 21.4)-1) * 229
 
 # Testing part
 def main():
