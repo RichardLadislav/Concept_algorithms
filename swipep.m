@@ -91,7 +91,7 @@ for j = 1 : size(S,2)
     if i==1, p(j)=pc(1); elseif i==length(pc), p(j)=pc(1); else 
         I = i-1 : i+1; 
         tc = 1 ./ pc(I); 
-        ntc = ( tc/tc(2) - 1 ) * 2*pi; 
+        ntc = ( tc/tc(2) - 1 ) * 2*pi;
         c = polyfit( ntc, S(I,j), 2 ); 
         ftc = 1 ./ 2.^ [ log2(pc(I(1))): 1/12/64: log2(pc(I(3))) ]; 
         nftc = ( ftc/tc(2) - 1 ) * 2*pi; 

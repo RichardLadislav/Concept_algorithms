@@ -114,7 +114,7 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
 
            Si = interp_func(t) 
 
-           print(f" interp function  ={Si}")
+           #print(f" interp function  ={Si}")
 
            #print(f"t={t}")
 
@@ -164,7 +164,9 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
             ntc = (tc / tc[1] - 1) * 2 * np.pi  # Normalize periods
         
             # Perform parabolic interpolation using polyfit
-            c = np.polyfit(ntc, S[I, j], 2)
+            S_help = S[I, j]
+            ntc_help = np.squeeze(ntc)
+            c = np.polyfit(np.squeeze(ntc), S_help, 2)
         
             # Generate fine-tuned frequency candidates for interpolation
             ftc = 1.0 / 2.0**np.arange(np.log2(pc[I[0]]), np.log2(pc[I[2]]) + 1/12/64, 1/12/64)
@@ -243,8 +245,8 @@ def erbs2hz(erbs):
 def main():
     #audiorad
    # Load audio file
-    #filename = librosa.ex('saw-wave-2-g3')
-    filename = librosa.ex('trumpet')
+    filename = librosa.ex('saw-wave-2-g3')
+    #filename = librosa.ex('trumpet')
     x, Fs = librosa.load(filename, sr=None)  # Load audio, maintain original sampling rate fmin = 75
     # Call the swipep-like function
     sTHR1 = float('-inf')
@@ -257,7 +259,7 @@ def main():
     plt.xlabel('Time (ms)')
     plt.ylabel('Pitch (Hz)')
     plt.title('Pitch Estimation using swipep-like Algorithm')
-    plt.show()
+    plt.show(block=True)
 
 if __name__ == "__main__":
   
