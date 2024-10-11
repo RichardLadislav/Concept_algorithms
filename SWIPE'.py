@@ -40,51 +40,34 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
     divFS = [fs / x for x in plim] #variable so I can divide by list
     logWs = [round(m.log2(4 * K * df)) for df in divFS]
     #ws_arg =  np.arange(logWs[0], logWs[1], -1)
-    #print(f"ws_arg{ws_arg}")   
     ws = 2**  np.arange(logWs[0], logWs[1], -1)
-    #print(f"Ws{ws}")
     pO = 4 * K * fs / ws
 
     # Determine window sizes used by each pitch candidate
     d =  1 + log2pc - m.log2(4*K*fs/ws[0])
-## Opisane z Gpt a skontrolovane trochuS
     # Create ERBs spaced frequencies (in Hertz)
     
     fERBs = erbs2hz(np.arange(hz2erbs(pc[0]/4), hz2erbs(fs/2),dERBs))[:,np.newaxis]
-    #print(f"fermentolento: {np.arange(hz2erbs(pc[0]/4), hz2erbs(fs/2),dERBs)}")
     for i in range(len(ws)):
         dn = round(dc * fs / pO[0]) #Hop size in samples
         # Zero pad signal
         xzp = np.concatenate([np.zeros((ws[i]//2,)), x.flatten(), np.zeros((dn + ws[i]//2,))])
-        #print(f"xzp:{xzp}")
         # Compute spectrum
         w = np.hanning(ws[i]) # Hanning window
         o = max(0, round(ws[i] - dn))
         f, ti, X = spectrogram(xzp, fs=fs, window=w, nperseg=ws[i], noverlap=o, mode='complex') 
-        #FIXME: z nejakeho dovodu je X hrozne male, ta mormalizacia pomocou np. sum(w) neni pravdepodobne
-        #funkcna -> input signal je maly tak je to asi tym
         X = X *np.sum(w)#*10E12
         # Interpolate at eqidistant ERBs steps
-#        print(f"f:{f.shape}") 
-        #print(f"X:{X}")
         # Perform interpolation
         # TO DO: ferb je hodnota musim posilat poradi prvku v liste 
         interp_func = CubicSpline(f, np.abs(X), extrapolate=False)
-        #for ferbs in range(len(interp_func)): 
-        #print(f"interp: {fERBs.shape[0]}")
         # Calculate the interpolated magnitudes
-        # FIXME: takto CubicSpline nefunguje, nemozem to robit prechadzanim indexov prvkov pola, ale samotnymi prvkami 
-        
-        
         M = np.maximum(0, interp_func(fERBs) )  # Ensure non-negative values
         M = np.squeeze(M)# 
         #M = np.maximum(0, [interp_func(ferbs) for ferbs in fERBs] )  # Ensure non-negative values
 
         #M = np.maximum(0, [interp_func(ferbs) for ferbs in range(fERBs.shape[0])] )  # Ensure non-negative values
-        #print(f"M: {[interp_func(ferbs) for ferbs in range(fERBs.shape[0])]}")
-        #print(f"list of magnitudes{[ ms for ms in M]}")
         L = [np.sqrt(ms) for ms in M]# Loudness
-        #print(f"L{L}")
         # Select candidates that use this window size 
         # Loop over window 
         # Select candidates that use this window size
@@ -102,7 +85,6 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
          # Pitch strength for selected candidates
         Si = pitchStrengthAllCandidates(fERBs, L, pc[j])
 
-        #print(f"estimated S shape  ={Si}")
 
         # Interpolate at desired times
         if Si.shape[1] > 1:
@@ -115,33 +97,25 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
 
            Si = interp_func(t) 
 
-           #print(f" interp function  ={Si}")
 
-           #print(f"t={t}")
 
         else:
            Si = np.full((len(Si), len(t)), np.nan)
 
-        #print(f"estimated S shape  ={Si}")
 
         # Calculate lambda and mu for weighting
         lambda_ = d[j[k]] - i
-        #print(f"lambda ={lambda_.T}")
 
         mu = np.ones(j.shape).T
 
-        #print(f"mu ={mu}")
         mu[k] = 1 - np.abs(lambda_.T)
 
         # Update pitch strength matrix
 
         #help_dimensions= np.outer(mu.shape[0],np.ones(Si.shape[1]))*Si
-#       help_dimensions=np.outer(mu,np.ones(Si.shape[1]))*Si
-        #print(f"estimated S shape  ={help_dimensions }")
         S[j, :] += np.outer(mu, np.ones(Si.T.shape[1])) * Si.T
         #S[j, :] += (mu * Si.T).T
 
-## opisane z GPT a neskontrolovane vubec
     # Initialize pitch and strength ys with NaN
     p = np.full((S.shape[1], 1), np.nan)
     s = np.full((S.shape[1], 1), np.nan)
@@ -246,9 +220,9 @@ def erbs2hz(erbs):
 def main():
     #audiorad
    # Load audio file
-    #os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms")
-   # filename ="saw-wave-2-g3.wav" 
-    filename = librosa.ex('trumpet')
+    os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms")
+    filename ="saw-wave-2-g3.wav" 
+    #filename = librosa.ex('trumpet')
     x, Fs = librosa.load(filename, sr=None)  # Load audio, maintain original sampling rate fmin = 75
     # Call the swipep-like function
     sTHR1 = float('-inf')
