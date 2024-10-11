@@ -8,7 +8,8 @@ from scipy.signal import spectrogram
 import librosa 
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
-# Check if 'plim' exists and is not None or empty, else set default value
+import os
+# Check i  f 'plim' exists and is not None or empty, else set default value
 def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
   #  plim = [30, 5000] if 'plim' not in locals() or not plim else plim
 
@@ -62,7 +63,7 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
         f, ti, X = spectrogram(xzp, fs=fs, window=w, nperseg=ws[i], noverlap=o, mode='complex') 
         #FIXME: z nejakeho dovodu je X hrozne male, ta mormalizacia pomocou np. sum(w) neni pravdepodobne
         #funkcna -> input signal je maly tak je to asi tym
-        X = X *np.sum(w)*10E12
+        X = X *np.sum(w)#*10E12
         # Interpolate at eqidistant ERBs steps
 #        print(f"f:{f.shape}") 
         #print(f"X:{X}")
@@ -245,8 +246,9 @@ def erbs2hz(erbs):
 def main():
     #audiorad
    # Load audio file
-    filename = librosa.ex('saw-wave-2-g3')
-    #filename = librosa.ex('trumpet')
+    #os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms")
+   # filename ="saw-wave-2-g3.wav" 
+    filename = librosa.ex('trumpet')
     x, Fs = librosa.load(filename, sr=None)  # Load audio, maintain original sampling rate fmin = 75
     # Call the swipep-like function
     sTHR1 = float('-inf')
