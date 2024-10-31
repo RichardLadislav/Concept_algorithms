@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 from scipy import io, integrate, linalg,  signal
 from scipy.sparse.linalg import cg, eigs
@@ -221,7 +222,7 @@ def main():
     #audiorad
    # Load audio file
     os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms")
-    filename ="saw-wave-2-g3.wav" 
+    filename ="vowel_e_test.wav" 
     #filename = librosa.ex('trumpet')
     x, Fs = librosa.load(filename, sr=None)  # Load audio, maintain original sampling rate fmin = 75
     # Call the swipep-like function
@@ -229,7 +230,12 @@ def main():
     plim = [75,500]
     #TODO: upravit funkciu aby brala premenny pocet argumentov 
     p, t, s = swipep(x, Fs, np.array(plim), 0.01, 1/96,0.1,sTHR1)
-
+    pitch_in_time = np.column_stack((t,p))
+    df = pd.DataFrame(pitch_in_time, columns=["Time(s)"  , "Pitch "])
+    
+    # Save to CSV
+    df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//pitch_csv_vowel_e.csv", index=False)
+    
     # Plot the pitch
     plt.plot(1000 * t, p)
     plt.xlabel('Time (ms)')
