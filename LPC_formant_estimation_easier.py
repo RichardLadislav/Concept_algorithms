@@ -30,7 +30,6 @@ def calculate_lpc(x, order):
 '''
 def get_formants(file_path):
     # Read the file using librosa
-    x, Fs = lib.load(file_path, sr=None)
 
     ncoeff = int(2 + Fs / 1000) # Calculate order of LPC order
     # Get Hamming window
@@ -45,31 +44,32 @@ def get_formants(file_path):
     dt = 0.01 # duration of time window in seconds TODO: input of function
     samples_dt = dt * Fs  # 
     '''zero matrix intialization'''
-    A_rows  = len(x1)/samples_dt # count number of rows for matrices``
+    A_rows  = np.floor(len(x1)/samples_dt) # count number of rows for matrices``
     A = np.zeros((int(A_rows),ncoeff+1)) # intialization of A matrix, ncoeff +1 beacause when estimating LPC, theres added 1
     rts = np.zeros((int(A_rows),ncoeff), dtype=complex)
     angz = np.zeros((int(A_rows),ncoeff), dtype=complex)
-    frqs = np.zeros((int(A_rows),ncoeff), dtype=complex)
-    for hop in range(0,len(x1),int(samples_dt)):
+    frqs = np.zeros((int(A_rows),ncoeff))
+    for hop in range(0,int(A_rows*samples_dt),int(samples_dt)):
         
         x1_cut = x1[hop:hop+int(samples_dt)]
 
 
-        A[int(hop/160),:] = calculate_lpc(x1_cut, order=ncoeff)
-        rts[int(hop/160),:] = np.roots(A[int(hop/160),:])
+        A[int(hop/samples_dt),:] = calculate_lpc(x1_cut, order=ncoeff)
+        rts[int(hop/samples_dt),:] = np.roots(A[int(hop/160),:])
 
+        rts[int(hop/samples_dt),:] = np.where(0<=np.imag(rts[int(hop/160),:]),rts[int(hop/160),:],0)
         # Find roots of the LPC polynomial
         #rts[int(hop/160),:]= [r for r in rts[int(hop/160),:] if np.imag(r) >= 0]
 
         # Calculate angles and frequencies
-        angz[int(hop/160),:] = np.arctan2(np.imag(rts[int(hop/160),:]), np.real(rts[int(hop/160),:]))
+        angz[int(hop/samples_dt),:] = np.arctan2(np.imag(rts[int(hop/160),:]), np.real(rts[int(hop/160),:]))
         #TODO: 17.11: vyreisit vypisovanie len kladnych realnych casti matice freq
-        frqs[int(hop/160),:] = sorted(angz[int(hop/160),:] * (Fs / (2 * m.pi)))
+        frqs[int(hop/samples_dt),:] = sorted(np.real(angz[int(hop/160),:]) * (Fs / (2 * m.pi)))
 
     return frqs
 def main():
 
-    formant_freq = get_formants("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//test_samples//K1003_7.1-2-a_1.wav")
+    formant_freq = get_formants("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//test_samples//P1021_7.1-1-e_1.wav")
      # Convert formant frequencies to a DataFrame
  #   df = pd.DataFrame(formant_freq, columns=["Formant Frequencies (Hz)"])
     
