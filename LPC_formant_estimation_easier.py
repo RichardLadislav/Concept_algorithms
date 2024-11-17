@@ -7,6 +7,7 @@ import math as m
 from scipy.signal import lfilter
 import scipy
 import librosa as lib
+import matplotlib.pyplot as plt
 
 def calculate_lpc(x, order):
     """Calculate LPC coefficients using the Levinson-Durbin recursion."""
@@ -75,12 +76,26 @@ def main():
     x, Fs = lib.load(file_path, sr=None)
     formant_freq = get_formants(x,Fs,dt)
      # Convert formant frequencies to a DataFrame
- #   df = pd.DataFrame(formant_freq, columns=["Formant Frequencies (Hz)"])
+    #df = pd.DataFrame(formant_freq, columns=["Formant Frequencies (Hz)"])
     
     # Save to CSV
- #   df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//1formants_K1003_7.1-2-a_1.csv", index=False)
+    #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//1formants_K1003_7.1-2-a_1.csv", index=False)
     # df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//formant_csv_vowel_e1.csv", index=False)
     print(f"formant frequencies {formant_freq}")
+    # Time vector for each window
+    time_vector = np.arange(0, len(formant_freq) * dt, dt)
+
+    # Plot all formant frequencies over time
+    plt.figure(figsize=(10, 6))
+    for i in range(formant_freq.shape[1]):  # Iterate over formant frequency columns
+        plt.plot(time_vector, formant_freq[:, i], label=f'Formant {i+1}')
+
+    plt.title("Formant Frequencies Over Time")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Frequency (Hz)")
+    plt.legend()
+    plt.grid()
+    plt.show(block=True) 
 
 if __name__ == "__main__":
   
