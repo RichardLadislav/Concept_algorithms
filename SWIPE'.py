@@ -26,7 +26,7 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
     # Check if 'sTHR' exists and is not None or empty, else set default value
    # sTHR = float('-inf') if 'sTHR' not in locals() or not sTHR else sTHR
     
-    t =np.arange( 0, len(x)/fs, dt)#[:,np.newaxis]           
+    t =np.arange( 0, len(x)/fs, dt)#[:,np.newaxis]  time vektor
 
     dc = 4 #Hop size 
     K = 2 #Parameter for size window
@@ -221,20 +221,27 @@ def erbs2hz(erbs):
 def main():
     #audiorad
    # Load audio file
-    os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms")
-    filename ="vowel_e_test.wav" 
+    #os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms")
+    os.chdir("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\concepts_algorithms\\test_samples")
+    filename ="P1021_7.1-1-a_1.wav" 
+
+    #filename ="vowel_e_test.wav" 
+    #filename ="vowel_e_test.wav" 
+    #filename ="vowel_e_test.wav" 
     #filename = librosa.ex('trumpet')
     x, Fs = librosa.load(filename, sr=None)  # Load audio, maintain original sampling rate fmin = 75
     # Call the swipep-like function
     sTHR1 = float('-inf')
-    plim = [75,500]
+    plim = [75,500]#pitch limitation
     #TODO: upravit funkciu aby brala premenny pocet argumentov 
     p, t, s = swipep(x, Fs, np.array(plim), 0.01, 1/96,0.1,sTHR1)
     pitch_in_time = np.column_stack((t,p))
     df = pd.DataFrame(pitch_in_time, columns=["Time(s)"  , "Pitch "])
     
     # Save to CSV
-    df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//pitch_csv_vowel_e.csv", index=False)
+    df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepvowel_e_testts_algorithms//pitch_P1021_7.1-1-a_1.csv", index=False)
+    #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//test_samples//pitch_csv_vowel_e.csv", index=False)
+    #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//pitch_csv_vowel_e.csv", index=False)
     
     # Plot the pitch
     plt.plot(1000 * t, p)
