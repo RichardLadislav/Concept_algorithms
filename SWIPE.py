@@ -54,7 +54,7 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
         # Zero pad signal
         xzp = np.concatenate([np.zeros((ws[i]//2,)), x.flatten(), np.zeros((dn + ws[i]//2,))])
         # Compute spectrum
-        w = np.hanning(ws[i]) # Hanning window
+        w = np.hanning(ws[i]) # Hann window
         o = max(0, round(ws[i] - dn))
         f, ti, X = spectrogram(xzp, fs=fs, window=w, nperseg=ws[i], noverlap=o, mode='complex') 
         X = X *np.sum(w)#*10E12
@@ -98,9 +98,8 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
 
            Si = interp_func(t) 
 
-
-
         else:
+
            Si = np.full((len(Si), len(t)), np.nan)
 
 
@@ -151,6 +150,7 @@ def swipep(x,fs,plim,dt,dlog2p,dERBs,sTHR):
         
             # Convert the fine-tuned result back to pitch
             p[j] = 2 ** (np.log2(pc[I[0]]) + (k - 1) / (12 * 64))
+
     return p, t, s
 
 def pitchStrengthAllCandidates(f,L,pc):
@@ -166,9 +166,6 @@ def pitchStrengthAllCandidates(f,L,pc):
     Returns:
     S  -- Pitch salience matrix
     """
-    #print(f"f: {f}") 
-    #print(f"pc: {pc}")
-    #print(f"L: {L}")
     
     with np.errstate(divide= 'ignore', invalid = 'ignore'):
      
@@ -178,7 +175,9 @@ def pitchStrengthAllCandidates(f,L,pc):
     S = np.zeros((len(pc), L.shape[1]))
 
     for j in range(len(pc)):
+
         S[j,:] = pitchStrengthOneCandidate(f, L, pc[j])
+
     return S
 
 def  pitchStrengthOneCandidate(f,L,pc):
