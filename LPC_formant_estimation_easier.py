@@ -21,7 +21,6 @@ def calculate_lpc(x, order):
     coeffs = np.append(1, -np.linalg.solve(R, r_vec))   # LPC coefficients
     return coeffs
 
-#TODO: change number of desired formants to single number
 def get_formants(x, Fs, dt, number_of_formants = None):
     """Calculate formant frequencies from LPC coefficients"""
     if number_of_formants:
@@ -75,72 +74,7 @@ def get_formants(x, Fs, dt, number_of_formants = None):
 #        formants = align_formants(formants)
         
     return formants
-def align_formants_both_ways(formants):
-    """
-    Align formants across time frames dynamically to handle crossovers and missing values.
-    """
-    num_frames, num_formants = formants.shape
 
-    # Initialize aligned formants with the first frame as the baseline
-    aligned_formants = np.zeros_like(formants-1)
-    aligned_formants[0, :] = formants[0, :]
-
-    for t in range(1, num_frames):
-        # Get formants for the current frame and the aligned previous frame
-        current_frame = formants[t, :]
-        previous_frame = aligned_formants[t - 1, :]
-
-        # Mask missing values (assumed to be zero or invalid)
-        current_valid = current_frame > 0
-        previous_valid = previous_frame > 0
-
-        # Use only valid formants for matching
-        current_values = current_frame[current_valid]
-        previous_values = previous_frame[previous_valid]
-
-        # If either current or previous frame has no valid formants, skip alignment
-        if len(current_values) == 0 or len(previous_values) == 0:
-            aligned_formants[t, :] = current_frame
-            continue
-
-        # Calculate pairwise distances (cost matrix)
-        cost_matrix = np.abs(current_values[:, None] - previous_values[None, :])
-
-        # Solve assignment problem for optimal alignment
-        row_indices, col_indices = linear_sum_assignment(cost_matrix)
-
-        # Reorder the current frame formants
-        reordered = np.full_like(current_values, fill_value=0, dtype=float)
-        #print(f"{np.size(reordered[np.where(current_valid)[0][row_indices]])}")
-        reordered = current_values
-
-        # Replace in aligned formants
-        aligned_formants[t, :] = reordered
-    return aligned_formants
-'''
-def align_formants(formants):
-    """Align formants across time frames for consistent tracking."""
-    num_frames, num_formants = formants.shape
-
-    # Initialize aligned formants with the first frame as the baseline
-    aligned_formants = np.zeros_like(formants)
-    aligned_formants[0, :] = formants[0, :]
-
-    for t in range(1, num_frames):
-        # Get formants for the current frame
-        current_frame = formants[t, :]
-        previous_frame = aligned_formants[t - 1, :]
-
-        # Match current formants to previous frame's formants
-        for i in range(num_formants):
-            # Find the closest match in the current frame to the previous formant
-            closest_idx = np.argmin(np.abs(current_frame - previous_frame[i]))
-            aligned_formants[t, i] = current_frame[closest_idx]
-            # Invalidate the used formant to avoid reuse
-            current_frame[closest_idx] = np.inf
-
-    return aligned_formants
-    '''
 def align_formants(formants):
     """
     Align formants row by row based on specified conditions.
