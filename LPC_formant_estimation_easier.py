@@ -68,7 +68,9 @@ def get_formants(x, Fs, dt, number_of_formants = None):
     formants = align_formants(formants)
     if number_of_formants:
         # Adjust for 1-based indexing (e.g., formant 1 is index 0)
-        desired_indices = np.arange(0,number_of_formants,1)
+
+        desired_indices = np.arange(0,3,1)
+        #desired_indices = np.arange(0,number_of_formants,1)
         #desired_indices = [i -1  for i in desired_formants]
         formants = formants[:, desired_indices]
 #        formants = align_formants(formants)
@@ -91,14 +93,14 @@ def align_formants(formants):
 
     for r in range(num_rows):
         row = aligned_formants[r, :]
-        
+       # TODO: fix aligning algorithm  
         for c in range(num_cols - 2):  # Avoid index out of bounds for c + 2
             # Check condition: Leave row as it is
-            if (row[c] != 0 or row[c + 1] == 0) and row[c + 2] >= 1000:
+            if (row[c] != 0 or row[c + 1] == 0) and row[c + 2] >= 700:
                 break  # No changes needed; move to the next row
             
             # Check condition: Align whole row to the left
-            if row[c] == 0 and row[c + 1] <= 700:
+            if row[c] == 0 and row[c + 1] <= 650:
                 non_zero_values = row[row > 0]  # Extract all non-zero values
                 aligned_formants[r, :] = np.zeros_like(row)  # Reset row
                 aligned_formants[r, :len(non_zero_values)] = non_zero_values  # Align to the left
@@ -108,21 +110,24 @@ def align_formants(formants):
 
 def main():
 
-    dt = 0.01
-    file_path = "C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//test_samples//P1021_7.1-1-i_1.wav"
+    dt = 0.00625
+    file_path = "C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//test_samples//P1021_7.1-1-a_1.wav"
     x, Fs = lib.load(file_path, sr=None)
 #    desired_formants = [1,2,3]
-    num_of_formants = 3
+    num_of_formants = 10
     formant_freq = get_formants(x,Fs,dt,num_of_formants)
      # Convert formant frequencies to a DataFrame
-    #df = pd.DataFrame(formant_freq, columns=["Formant Frequencies (Hz)"])
-    
+ 
     # Save to CSV
-    #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//1formants_K1003_7.1-2-a_1.csv", index=False)
     # df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//formant_csv_vowel_e1.csv", index=False)
     print(f"formant frequencies {formant_freq}")
     # Time vector for each window
-    time_vector = np.arange(0, len(formant_freq) * dt, dt)
+    time_vector = np.arange(0, len(formant_freq) * dt, dt)[:formant_freq.shape[0]]
+    #columns = ["Time (s)"] + [f"Formant {i+1} (Hz)" for i in range(formant_freq.shape[1])]
+    #data = np.column_stack((time_vector, formant_freq))
+    #df = pd.DataFrame(data, columns=columns)
+
+    #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms///test_samples//formants_prelonged_vowel_a_patient_final.csv", index=False)
 
     # Plot all formant frequencies over time
     plt.figure(figsize=(10, 6))
