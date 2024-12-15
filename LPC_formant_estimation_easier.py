@@ -65,15 +65,18 @@ def get_formants(x, Fs, dt, number_of_formants = None):
     formants = np.delete(frqs,zero_idx,axis=1)
     
     # Align formants across time
+
+    '''
     formants = align_formants(formants)
     if number_of_formants:
         # Adjust for 1-based indexing (e.g., formant 1 is index 0)
 
         desired_indices = np.arange(0,3,1)
         #desired_indices = np.arange(0,number_of_formants,1)
-        #desired_indices = [i -1  for i in desired_formants]
+        #desired_indices = [i -1  for i in desired_indices ]
         formants = formants[:, desired_indices]
 #        formants = align_formants(formants)
+    '''
         
     return formants
 
@@ -111,7 +114,7 @@ def align_formants(formants):
 def main():
 
     dt = 0.00625
-    file_path = "C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//test_samples//P1021_7.1-1-a_1.wav"
+    file_path = "C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//statistic_evaluation//prelonged_I//P_i//P2111_7.1-2-i_1.wav"
     x, Fs = lib.load(file_path, sr=None)
 #    desired_formants = [1,2,3]
     num_of_formants = 10
@@ -123,16 +126,16 @@ def main():
     print(f"formant frequencies {formant_freq}")
     # Time vector for each window
     time_vector = np.arange(0, len(formant_freq) * dt, dt)[:formant_freq.shape[0]]
-    #columns = ["Time (s)"] + [f"Formant {i+1} (Hz)" for i in range(formant_freq.shape[1])]
-    #data = np.column_stack((time_vector, formant_freq))
-    #df = pd.DataFrame(data, columns=columns)
+    columns = ["Time (s)"] + [f"Formant {i+1} (Hz)" for i in range(formant_freq.shape[1])]
+    data = np.column_stack((time_vector, formant_freq))
+    df = pd.DataFrame(data, columns=columns)
 
-    #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms///test_samples//formants_prelonged_vowel_a_patient_final.csv", index=False)
+    df.to_csv("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\statistic_evaluation\\prelonged_I\\LPC_i\\P-lpc_i\\P2111_7.1-2-i_1.wav_lpc.csv", index=False)
 
     # Plot all formant frequencies over time
     plt.figure(figsize=(10, 6))
     for i in range(formant_freq.shape[1]):  # Iterate over formant frequency columns
-        plt.plot(time_vector, formant_freq[:, i], label=f'Formant {i+1}')
+        plt.scatter(time_vector, formant_freq[:, i], label=f'Formant {i}',marker="x")
 
     plt.title("Formant Frequencies Over Time")
     plt.xlabel("Time (s)")

@@ -18,3 +18,11 @@ formants_P1021_7.1-1-a_1.csv
 pitch_csv_vowel_e.csv
 pitch_K1003_7.1-2-a_1.csv
 pitch_P1021_7.1-1-a_1.csv
+LPC_backup.txt
+lpc_demo.m
+LPC_formant_estimator.py
+lpc_testscript.m
+sac_visualization.gif
+swipep.m
+__pycache__
+test_samples
