@@ -66,7 +66,7 @@ def compute_apq3(max_peaks, min_peaks):
     return apq3
 
 if __name__ == "__main__":
-    wav_file = "K1003_7.1-2-a_1.wav"  # Change this to your file
+    wav_file = "P1021_7.1-1-e_1.wav"  # Change this to your file
     audio, sr = read_audio(wav_file)
 
     cycle_positions = find_glottal_cycles(audio, sr)

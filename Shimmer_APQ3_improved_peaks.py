@@ -1,7 +1,6 @@
 import numpy as np
 import librosa
 import scipy.signal
-import matplotlib.pyplot as plt
 from SWIPE import * 
 def find_glottal_cycles(audio, sr, f0_min=75, f0_max=300):
     """
@@ -10,7 +9,7 @@ def find_glottal_cycles(audio, sr, f0_min=75, f0_max=300):
     """
     # Estimate fundamental frequency using librosa
     #f0, voiced_flag, voiced_probs = librosa.pyin(audio , fmin=20, fmax=750, sr=sr)
-    f0, t, s = swipep(audio, sr, np.array([25,400]),0.1,1/96,0.1,float('-inf'))
+    f0, t, s = swipep(audio, sr, np.array([25,400]),0.0015,1/96,0.1,float('-inf'))
         
     # Convert f0 to period length in samples
     period_samples = sr / f0
@@ -47,7 +46,7 @@ def calculate_apq3(amplitudes):
 
 #    test_convolve = np.convolve(amplitudes, np.ones(3)/3, 'valid') 
     numerator = np.sum(np.abs(amplitudes[1:-1] - np.convolve(amplitudes, np.ones(3)/3, 'valid')))
-    numerator /= (N - 1)
+    numerator /= (N - 2)
 
     # Compute denominator: Mean amplitude
     denominator = np.mean(amplitudes)
@@ -69,7 +68,7 @@ def shimmer_apq3_from_wav(file_path):
     return apq3_value
 
 # Example Usage
-wav_file = "K1003_7.1-2-e_1.wav"  # Replace with your actual file
+wav_file = "K1024_7.1-2-a_1.wav"  # Replace with your actual file
 shimmer_apq3_value = shimmer_apq3_from_wav(wav_file)
 
 print(f"Shimmer (APQ3): {shimmer_apq3_value}")

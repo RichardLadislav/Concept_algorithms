@@ -8,10 +8,10 @@ def find_glottal_cycles(audio, sr):
     Identify glottal cycles by detecting fundamental frequency (F0)
     and extracting period durations (inverse of F0).
     """
-    # Estimate fundamental frequency using SWIPE
-    #f0, t, s = swipep(audio, sr, np.array([25, 400]), 0.1, 1/96, 0.1, float('-inf'))
+    ## Estimate fundamental frequency using SWIPE
+    f0, t, s = swipep(audio, sr, np.array([25, 400]), 0.0015, 1/96, 0.1, float('-inf'))
     
-    f0, voiced_flag, voiced_probs = librosa.pyin(audio , fmin=20, fmax=750, sr=sr)
+    #f0, voiced_flag, voiced_probs = librosa.pyin(audio , fmin=20, fmax=750, sr=sr)
     # Convert f0 to period length in samples (T = 1 / F0)
     period_samples = sr / f0
     period_samples = period_samples[~np.isnan(period_samples)]  # Remove NaN values
@@ -47,7 +47,7 @@ def jitter_rap_from_wav(file_path):
     return jitter_rap_value
 
 # Example Usage
-wav_file = "K1003_7.1-2-a_1.wav"  # Replace with your actual file
+wav_file = "K1024_7.1-2-a_1.wav"  #Replace with your actual file
 jitter_rap_value = jitter_rap_from_wav(wav_file)
 
 print(f"Jitter (RAP): {jitter_rap_value:.6f} %")
