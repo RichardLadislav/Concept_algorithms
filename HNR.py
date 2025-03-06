@@ -3,7 +3,7 @@ import librosa
 import scipy.io.wavfile as wav
 import scipy.signal as signal
 
-def compute_hnr(signal, fs, frame_length=0.05, overlap=0.5, f0_min=75, f0_max=500):
+def compute_hnr(signal, fs, frame_length=0.035, overlap=0.5, f0_min=75, f0_max=500):
     """
     Compute Harmonics-to-Noise Ratio (HNR) using autocorrelation with Hamming window.
     

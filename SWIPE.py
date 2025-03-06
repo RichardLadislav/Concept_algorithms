@@ -233,13 +233,13 @@ def main():
     sTHR1 = float('-inf')
     plim = [75,300]#pitch limitation
     #TODO: upravit funkciu aby brala premenny pocet argumentov 
-    p, t, s = swipep(x, Fs, np.array(plim), 0.015, 1/96,0.1,sTHR1)
+    p, t, s = swipep(x, Fs, np.array(plim), 0.035, 1/96,0.1,sTHR1)
     pitch_in_time = np.column_stack((t,p))
     df = pd.DataFrame(pitch_in_time, columns=["Time(s)"  , "Pitch "])
 
     # Save to CSV
     #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepvowel_e_testts_algorithms//pitch_P1021_7.1-1-a_1.csv", index=False)
-    df.to_csv("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\statistic_evaluation\\perlonged_E\\SWIPE_e\\P2111_7.1-2-e_1_250hz.wav_swipe.csv", index=False)
+    #df.to_csv("C:\\Users\\Richard Ladislav\\Desktop\\final countdown\\DP-knihovna pro parametrizaci reci - kod\\statistic_evaluation\\perlonged_E\\SWIPE_e\\P2111_7.1-2-e_1_250hz.wav_swipe.csv", index=False)
     #df.to_csv("C://Users//Richard Ladislav//Desktop//final countdown//DP-knihovna pro parametrizaci reci - kod//concepts_algorithms//pitch_csv_vowel_e.csv", index=False)
     
     # Plot the pitch
